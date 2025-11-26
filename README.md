@@ -124,6 +124,4 @@ npx serve
 - OpenRouter API
 - GPT-4 Turbo
 
-## 라이선스
-
-MIT License
+sk1-or1-v1-7620eb1f8e7c8f088119faefa5d58eb8a8db61f7a6b69ff52c0e80efbd551b97
