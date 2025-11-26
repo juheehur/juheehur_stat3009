@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ML 코딩 어시스턴트</title>
+</head>
+<body style="margin: 0; padding: 20px; font-family: Arial, sans-serif; background: #f5f5f5;">
+    <div style="max-width: 1200px; margin: 0 auto;">
+        <!-- Password Modal (hidden by default) -->
+        <div 
+            id="passwordModal" 
+            style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); z-index: 10001;"
+        >
+            <h3 style="margin-top: 0; margin-bottom: 15px;">비밀번호 입력</h3>
+            <input 
+                type="password" 
+                id="passwordInput" 
+                placeholder="비밀번호 입력" 
+                style="width: 200px; padding: 10px; border: 1px solid #ccc; border-radius: 5px; font-size: 14px; margin-bottom: 10px;"
+            />
+            <div>
+                <button 
+                    id="passwordSubmit" 
+                    style="padding: 8px 20px; background: #6366f1; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; margin-right: 10px;"
+                >
+                    확인
+                </button>
+                <button 
+                    id="passwordCancel" 
+                    style="padding: 8px 20px; background: #ccc; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 14px;"
+                >
+                    취소
+                </button>
+            </div>
+        </div>
+
+        <!-- Chatbot Section (hidden by default) - 한 줄로 -->
+        <div id="chatbotSection" style="display: none; margin-bottom: 20px; padding: 10px; background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+            <!-- 한 줄로 배치 -->
+            <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                <div style="position: relative; display: inline-block;">
+                    <input 
+                        type="text" 
+                        id="chatbotInput" 
+                        placeholder="텍스트/이미지 복붙..." 
+                        style="width: 0.3cm; height: 0.5cm; font-size: 8px; padding: 0; border: 1px solid #ccc; border-radius: 3px; box-sizing: border-box; flex-shrink: 0;"
+                    />
+                    <div id="imagePreview" style="display: none; position: absolute; top: -30px; left: 0; max-width: 100px; max-height: 100px; border: 1px solid #ccc; border-radius: 3px; background: white; z-index: 1000;">
+                        <img id="previewImage" style="max-width: 100%; max-height: 100%; display: block;" />
+                        <button id="removeImage" style="position: absolute; top: -5px; right: -5px; width: 15px; height: 15px; border-radius: 50%; background: #f44336; color: white; border: none; cursor: pointer; font-size: 10px; line-height: 15px;">×</button>
+                    </div>
+                </div>
+                <button 
+                    id="chatbotSend" 
+                    style="height: 0.5cm; font-size: 8px; padding: 0 8px; border: 1px solid #ccc; border-radius: 3px; background: #6366f1; color: white; cursor: pointer; box-sizing: border-box; flex-shrink: 0;"
+                >
+                    전송
+                </button>
+                <div 
+                    id="statusDisplay" 
+                    style="background: white; border: 1px solid #ddd; border-radius: 5px; padding: 0; width: 0.3cm; height: 0.5cm; font-size: 8px; color: #333; text-align: center; line-height: 0.5cm; box-sizing: border-box; overflow: hidden; flex-shrink: 0;"
+                >
+                    대기 중...
+                </div>
+                <button 
+                    id="printBtn" 
+                    style="height: 0.5cm; font-size: 8px; padding: 0 10px; border: 1px solid #ccc; border-radius: 3px; background: #4CAF50; color: white; cursor: pointer; flex-shrink: 0;"
+                >
+                    프린트
+                </button>
+                <button 
+                    id="copyBtn" 
+                    style="height: 0.5cm; font-size: 8px; padding: 0 10px; border: 1px solid #ccc; border-radius: 3px; background: #2196F3; color: white; cursor: pointer; flex-shrink: 0;"
+                >
+                    복사
+                </button>
+            </div>
+
+            <!-- Output Section - 숨김 -->
+            <div 
+                id="chatbotMessages" 
+                style="display: none;"
+            ></div>
+        </div>
+
+        <!-- Notes Section -->
+        <div style="margin-top: 40px; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); font-family: 'Courier New', monospace; font-size: 14px; line-height: 1.6;">
+            <h2 id="toggleChatbot" style="margin-top: 0; color: #333; cursor: pointer; user-select: none;">1️⃣ Basic Data Preprocessing</h2>
+            
+            <h3 style="color: #555; margin-top: 20px;">Load data</h3>
+            <pre style="background: #f5f5f5; padding: 15px; border-radius: 5px; overflow-x: auto; margin: 10px 0;">import pandas as pd
+import numpy as np
+
+df = pd.read_csv("ratings.csv")</pre>
+
+            <h3 style="color: #555; margin-top: 20px;">Train-test split</h3>
+            <pre style="background: #f5f5f5; padding: 15px; border-radius: 5px; overflow-x: auto; margin: 10px 0;">from sklearn.model_selection import train_test_split
+
+train, test = train_test_split(df, test_size=0.2, random_state=42)</pre>
+
+            <h3 style="color: #555; margin-top: 20px;">Handling missing values</h3>
+            <pre style="background: #f5f5f5; padding: 15px; border-radius: 5px; overflow-x: auto; margin: 10px 0;">df.fillna(0, inplace=True)</pre>
+
+            <h2 style="margin-top: 40px; color: #333;">2️⃣ Baseline Recommenders</h2>
+
+            <h3 style="color: #555; margin-top: 20px;">Global Mean Baseline</h3>
+            <pre style="background: #f5f5f5; padding: 15px; border-radius: 5px; overflow-x: auto; margin: 10px 0;">class GlobalMeanRS:
+    def fit(self, X):
+        self.global_mean = X['rating'].mean()
+
+    def predict(self, X):
+        return np.full(len(X), self.global_mean)</pre>
+
+            <h3 style="color: #555; margin-top: 20px;">User Median Recommender</h3>
+            <pre style="background: #f5f5f5; padding: 15px; border-radius: 5px; overflow-x: auto; margin: 10px 0;">from sklearn.base import BaseEstimator
+
+class UserMedianRS(BaseEstimator):
+    def fit(self, X):
+        self.user_median = X.groupby('userId')['rating'].median().to_dict()
+        self.global_median = X['rating'].median()
+        return self
+    
+    def predict(self, X):
+        preds = []
+        for u in X['userId']:
+            preds.append(self.user_median.get(u, self.global_median))
+        return np.array(preds)</pre>
+
+            <h3 style="color: #555; margin-top: 20px;">Item Median Recommender</h3>
+            <pre style="background: #f5f5f5; padding: 15px; border-radius: 5px; overflow-x: auto; margin: 10px 0;">class ItemMedianRS(BaseEstimator):
+    def fit(self, X):
+        self.item_median = X.groupby('itemId')['rating'].median().to_dict()
+        self.global_median = X['rating'].median()
+        return self
+    
+    def predict(self, X):
+        preds = []
+        for i in X['itemId']:
+            preds.append(self.item_median.get(i, self.global_median))
+        return np.array(preds)</pre>
+
+            <h2 style="margin-top: 40px; color: #333;">3️⃣ Evaluation — RMSE</h2>
+            <pre style="background: #f5f5f5; padding: 15px; border-radius: 5px; overflow-x: auto; margin: 10px 0;">from sklearn.metrics import mean_squared_error
+import numpy as np
+
+def rmse(y_true, y_pred):
+    return np.sqrt(mean_squared_error(y_true, y_pred))</pre>
+
+            <h2 style="margin-top: 40px; color: #333;">4️⃣ Matrix Factorization (SGD)</h2>
+            <p style="color: #666; font-style: italic;">(A stripped-down version commonly used in homework)</p>
+            <pre style="background: #f5f5f5; padding: 15px; border-radius: 5px; overflow-x: auto; margin: 10px 0;">class MF:
+    def __init__(self, n_factors=10, lr=0.01, reg=0.1, n_epochs=20):
+        self.n_factors = n_factors
+        self.lr = lr
+        self.reg = reg
+        self.n_epochs = n_epochs
+
+    def fit(self, df):
+        users = df['userId'].unique()
+        items = df['itemId'].unique()
+        self.user2idx = {u: idx for idx, u in enumerate(users)}
+        self.item2idx = {i: idx for idx, i in enumerate(items)}
+        self.P = np.random.normal(0, 0.1, (len(users), self.n_factors))
+        self.Q = np.random.normal(0, 0.1, (len(items), self.n_factors))
+
+        for _ in range(self.n_epochs):
+            for _, row in df.iterrows():
+                u = self.user2idx[row['userId']]
+                i = self.item2idx[row['itemId']]
+                r = row['rating']
+                pred = self.P[u].dot(self.Q[i])
+                err = r - pred
+                self.P[u] += self.lr * (err * self.Q[i] - self.reg * self.P[u])
+                self.Q[i] += self.lr * (err * self.P[u] - self.reg * self.Q[i])
+        return self
+
+    def predict(self, df):
+        preds = []
+        for _, row in df.iterrows():
+            u = self.user2idx.get(row['userId'])
+            i = self.item2idx.get(row['itemId'])
+            if u is None or i is None:
+                preds.append(np.mean(df['rating']))
+            else:
+                preds.append(self.P[u].dot(self.Q[i]))
+        return np.array(preds)</pre>
+
+            <h2 style="margin-top: 40px; color: #333;">5️⃣ Cross-validation Example</h2>
+            <pre style="background: #f5f5f5; padding: 15px; border-radius: 5px; overflow-x: auto; margin: 10px 0;">from sklearn.model_selection import KFold
+
+kf = KFold(n_splits=5, shuffle=True, random_state=42)
+rmses = []
+
+for train_idx, test_idx in kf.split(df):
+    train = df.iloc[train_idx]
+    test = df.iloc[test_idx]
+    
+    model = UserMedianRS()
+    model.fit(train)
+    
+    preds = model.predict(test)
+    score = rmse(test['rating'], preds)
+    
+    rmses.append(score)
+
+print("CV RMSE:", np.mean(rmses))</pre>
+
+            <h2 style="margin-top: 40px; color: #333;">6️⃣ Neural Recommender (TensorFlow / Keras)</h2>
+            <p style="color: #666; font-style: italic;">(Common standard MLP recommender form)</p>
+            <pre style="background: #f5f5f5; padding: 15px; border-radius: 5px; overflow-x: auto; margin: 10px 0;">import tensorflow as tf
+from tensorflow.keras import layers
+
+num_users = df['userId'].nunique()
+num_items = df['itemId'].nunique()
+
+user_in = layers.Input(shape=(1,))
+item_in = layers.Input(shape=(1,))
+
+user_embed = layers.Embedding(num_users, 32)(user_in)
+item_embed = layers.Embedding(num_items, 32)(item_in)
+
+user_vec = layers.Flatten()(user_embed)
+item_vec = layers.Flatten()(item_embed)
+
+x = layers.Concatenate()([user_vec, item_vec])
+x = layers.Dense(64, activation='relu')(x)
+x = layers.Dense(32, activation='relu')(x)
+out = layers.Dense(1)(x)
+
+model = tf.keras.Model([user_in, item_in], out)
+model.compile(optimizer='adam', loss='mse')</pre>
+
+            <h2 style="margin-top: 40px; color: #333;">7️⃣ Train/Test prediction helper</h2>
+            <pre style="background: #f5f5f5; padding: 15px; border-radius: 5px; overflow-x: auto; margin: 10px 0;">def prepare_inputs(df):
+    return [df['userId'].values, df['itemId'].values]
+
+model.fit(
+    prepare_inputs(train),
+    train['rating'].values,
+    epochs=5,
+    batch_size=256
+)
+
+pred = model.predict(prepare_inputs(test))
+rmse(test['rating'], pred)</pre>
+
+            <h2 style="margin-top: 40px; color: #333;">8️⃣ Pivot Table for MF sanity check</h2>
+            <pre style="background: #f5f5f5; padding: 15px; border-radius: 5px; overflow-x: auto; margin: 10px 0;">ratings = df.pivot_table(index='userId', columns='itemId', values='rating')</pre>
+        </div>
+    </div>
+
+    <script src="config.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
