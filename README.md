@@ -125,3 +125,24 @@ npx serve
 - GPT-4 Turbo
 
 sk1-or1-v1-7620eb1f8e7c8f088119faefa5d58eb8a8db61f7a6b69ff52c0e80efbd551b97
+
+
+import requests
+K=""
+U="https://openrouter.ai/api/v1/chat/completions"
+H={"Authorization":f"Bearer {K}","Content-Type":"application/json"}
+def ask(p,m="openai/gpt-4-turbo"):
+ r=requests.post(U,headers=H,json={"model":m,"messages":[{"role":"user","content":p}],"temperature":0.7,"max_tokens":2000})
+ return r.json()["choices"][0]["message"]["content"] if r.ok else None
+def code(p,m="openai/gpt-4-turbo"):
+ s="Output ONLY executable code. No explanations, no markdown."
+ r=requests.post(U,headers=H,json={"model":m,"messages":[{"role":"system","content":s},{"role":"user","content":p}],"temperature":0.7,"max_tokens":2000})
+ return r.json()["choices"][0]["message"]["content"] if r.ok else None
+def img(i,t="",m="openai/gpt-4o"):
+ c=[{"type":"image_url","image_url":{"url":i}}]
+ if t:c.append({"type":"text","text":t})
+ r=requests.post(U,headers=H,json={"model":m,"messages":[{"role":"user","content":c}],"temperature":0.7,"max_tokens":2000})
+ return r.json()["choices"][0]["message"]["content"] if r.ok else None
+
+print(code("로지스틱 회귀 모델을 scikit-learn으로 구현해줘"))
+
